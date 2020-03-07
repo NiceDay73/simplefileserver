@@ -23,7 +23,7 @@ def main():
         try:
             conn, addr = server.accept()
         except:
-            print('Closing server...')
+            print('\nClosing server...')
             break
         print('Connection accepted from {}'.format(addr))
         while True:
@@ -32,14 +32,23 @@ def main():
             except ConnectionResetError:
                 break
             filename = filename.decode()
+            if filename == 'Bye':
+                break
             try:
                 filesize = os.path.getsize(filename)
             except (OSError, FileNotFoundError):
                 conn.send(b'ERR: File not found!!')
-                print(filesize)
                 continue
-            print('Filesize is:', filesize)
-
+            conn.send(str(filesize).encode())
+            confirm = conn.recv(1024)
+            confirm = confirm.decode()
+            if confirm == 'y':
+                with open(filename, 'r') as fd:
+                    data = fd.read()
+                    print(data)
+                    conn.send(data.encode())
+        print('22')
+    print('11')
     server.close()
 
 
